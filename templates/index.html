@@ -1,0 +1,1554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fake News Detector - AI-Powered Truth Verification</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --dark-bg: #0f0f1e;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --text-primary: #ffffff;
+            --text-secondary: #b8bcc8;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.3);
+            --shadow-glow: 0 0 40px rgba(102, 126, 234, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            background: linear-gradient(45deg, #0f0f1e, #1a1a2e, #16213e);
+            overflow: hidden;
+        }
+
+        .floating-shapes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            opacity: 0.1;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .shape:nth-child(1) {
+            width: 300px;
+            height: 300px;
+            top: -150px;
+            left: -150px;
+            animation-delay: 0s;
+        }
+
+        .shape:nth-child(2) {
+            width: 200px;
+            height: 200px;
+            bottom: -100px;
+            right: -100px;
+            animation-delay: 5s;
+        }
+
+        .shape:nth-child(3) {
+            width: 150px;
+            height: 150px;
+            top: 50%;
+            left: 50%;
+            animation-delay: 10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(30px, -30px) rotate(120deg); }
+            66% { transform: translate(-20px, 20px) rotate(240deg); }
+        }
+
+        /* Header */
+        .header {
+            padding: 2rem 0;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            animation: glow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 20px rgba(102, 126, 234, 0.5)); }
+            to { filter: drop-shadow(0 0 30px rgba(118, 75, 162, 0.8)); }
+        }
+
+        .tagline {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            font-weight: 300;
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem 0;
+            padding: 0 1rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            padding: 0.75rem 2rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--primary-gradient);
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: -1;
+        }
+
+        .nav-tab:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+            border-color: rgba(102, 126, 234, 0.5);
+        }
+
+        .nav-tab.active {
+            background: var(--primary-gradient);
+            color: white;
+            border-color: transparent;
+            box-shadow: var(--shadow-glow);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Cards */
+        .card {
+            background: var(--glass-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(20px);
+            box-shadow: var(--shadow-xl);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--primary-gradient);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+        
+        select.form-control option {
+            background: #1a1a2e;
+            color: var(--text-primary);
+            padding: 8px 12px;
+        }
+        
+        select.form-control:focus {
+            color: var(--text-primary);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .form-control::placeholder {
+            color: var(--text-secondary);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--glass-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(102, 126, 234, 0.5);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Results */
+        .result-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-top: 2rem;
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .result-card.fake {
+            border-color: rgba(245, 87, 108, 0.5);
+            background: linear-gradient(135deg, rgba(245, 87, 108, 0.1), rgba(250, 112, 154, 0.1));
+        }
+
+        .result-card.real {
+            border-color: rgba(79, 172, 254, 0.5);
+            background: linear-gradient(135deg, rgba(79, 172, 254, 0.1), rgba(0, 242, 254, 0.1));
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .result-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .result-icon.fake {
+            background: var(--warning-gradient);
+        }
+
+        .result-icon.real {
+            background: var(--success-gradient);
+        }
+
+        .result-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .confidence-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: var(--primary-gradient);
+            border-radius: 4px;
+            transition: width 1s ease-out;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        /* News Section */
+        .news-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .category-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .category-btn {
+            padding: 0.5rem 1rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 25px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .category-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(102, 126, 234, 0.5);
+        }
+
+        .category-btn.active {
+            background: var(--primary-gradient);
+            color: white;
+            border-color: transparent;
+        }
+
+        .news-container {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .news-article {
+            background: var(--glass-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            backdrop-filter: blur(20px);
+            transition: all 0.3s;
+        }
+
+        .news-article:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+
+        .news-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .news-source {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .news-article h3 {
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            line-height: 1.4;
+        }
+
+        .news-description {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .news-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-analyze {
+            padding: 0.5rem 1.5rem;
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .btn-analyze:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .news-analysis-result {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+
+        .news-analysis-result.fake {
+            background: rgba(245, 87, 108, 0.2);
+            border: 1px solid rgba(245, 87, 108, 0.5);
+            color: #fee140;
+        }
+
+        .news-analysis-result.real {
+            background: rgba(79, 172, 254, 0.2);
+            border: 1px solid rgba(79, 172, 254, 0.5);
+            color: #4facfe;
+        }
+
+        /* Loading Spinner */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(102, 126, 234, 0.3);
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Error Messages */
+        .error {
+            background: rgba(245, 87, 108, 0.2);
+            border: 1px solid rgba(245, 87, 108, 0.5);
+            color: #fee140;
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+
+        .news-error {
+            background: rgba(245, 87, 108, 0.2);
+            border: 1px solid rgba(245, 87, 108, 0.5);
+            color: #fee140;
+            padding: 1rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .no-news {
+            text-align: center;
+            color: var(--text-secondary);
+            padding: 2rem;
+            background: var(--glass-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Status Section */
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .status-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            backdrop-filter: blur(20px);
+            transition: all 0.3s;
+        }
+
+        .status-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .status-value {
+            font-size: 2rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .status-label {
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        /* Performance Table Styles */
+        .performance-table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .performance-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+            color: #2c3e50 !important;
+        }
+
+        .performance-table th {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9em;
+            letter-spacing: 0.5px;
+        }
+
+        .performance-table tr:hover {
+            background: #f8f9fa;
+            transition: background-color 0.3s ease;
+        }
+
+        .performance-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .performance-table td:first-child {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        /* Classification Report Data Styles */
+        .performance-table td:nth-child(2),
+        .performance-table td:nth-child(3),
+        .performance-table td:nth-child(4) {
+            color: #2c3e50 !important;
+            font-weight: 500;
+            text-align: center;
+        }
+        
+        .performance-table .metric-header {
+            color: #34495e !important;
+            font-weight: 700;
+        }
+
+        /* Confusion Matrix Styles */
+        .confusion-table {
+            width: 100%;
+            max-width: 500px;
+            margin: 20px auto;
+            border-collapse: collapse;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            border-radius: 12px;
+            overflow: hidden;
+            background: white;
+        }
+
+        .confusion-table th,
+        .confusion-table td {
+            padding: 18px;
+            text-align: center;
+            border: 2px solid #e9ecef;
+            font-weight: 600;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+        }
+
+        .confusion-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.9em;
+            letter-spacing: 0.5px;
+            border-color: #667eea;
+        }
+
+        .confusion-table td:first-child:not(.correct-prediction):not(.incorrect-prediction) {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            font-weight: 700;
+            text-align: left;
+            color: #495057;
+            border-color: #dee2e6;
+            min-width: 120px;
+        }
+
+        .confusion-table .correct-prediction {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%) !important;
+            color: #155724 !important;
+            border-color: #28a745 !important;
+            font-weight: 700 !important;
+            font-size: 1.2em !important;
+        }
+
+        .confusion-table .incorrect-prediction {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%) !important;
+            color: #721c24 !important;
+            border-color: #dc3545 !important;
+            font-weight: 600 !important;
+        }
+
+        .confusion-table .correct-prediction:hover {
+            background: linear-gradient(135deg, #c3e6cb 0%, #b8dacc 100%) !important;
+            transform: scale(1.05);
+        }
+
+        .confusion-table .incorrect-prediction:hover {
+            background: linear-gradient(135deg, #f5c6cb 0%, #f1b0b7 100%) !important;
+            transform: scale(1.05);
+        }
+
+        /* Stats Grid Enhancement */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg);
+            transition: all 0.5s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+        }
+
+        .stat-card:hover::before {
+            animation: shine 0.5s ease;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .stat-value {
+            font-size: 2.8em;
+            font-weight: bold;
+            margin-bottom: 8px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .stat-label {
+            font-size: 0.95em;
+            opacity: 0.95;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .about-section {
+            line-height: 1.8;
+            color: var(--text-primary);
+        }
+
+        .about-section h3 {
+            color: #667eea;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+
+        .about-section ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .about-section li {
+            margin-bottom: 8px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 2rem;
+            }
+
+            .nav-tabs {
+                gap: 0.5rem;
+            }
+
+            .nav-tab {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            .card {
+                padding: 1.5rem;
+            }
+
+            .result-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .news-controls {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-gradient);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-animation">
+        <div class="floating-shapes">
+            <div class="shape"></div>
+            <div class="shape"></div>
+            <div class="shape"></div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <h1 class="logo">🔍 TruthLens</h1>
+            <p class="tagline">AI-Powered Fake News Detection & Verification</p>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <div class="nav-tabs">
+        <button class="nav-tab active" onclick="switchTab('analyze')">📝 Analyze Text</button>
+        <button class="nav-tab" onclick="switchTab('news')">📰 Latest News</button>
+        <button class="nav-tab" onclick="switchTab('about')">ℹ️ About</button>
+        <button class="nav-tab" onclick="switchTab('performance')">📈 Performance</button>
+    </div>
+
+    <div class="container">
+        <!-- Analyze Tab -->
+        <div id="analyze-tab" class="tab-content active">
+            <div class="card">
+                <h2 style="margin-bottom: 1.5rem; font-size: 1.8rem;">Analyze News Content</h2>
+                
+                {% if error %}
+                <div class="error">{{ error }}</div>
+                {% endif %}
+
+                <form method="POST">
+                    <div class="form-group">
+                        <label class="form-label" for="title">News Title</label>
+                        <input type="text" id="title" name="title" class="form-control" 
+                               placeholder="Enter the news headline..." value="{{ request.form.title or '' }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="content">News Content</label>
+                        <textarea id="content" name="content" class="form-control" 
+                                  placeholder="Paste the full news article content here...">{{ request.form.content or '' }}</textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <span>🔍</span> Analyze for Authenticity
+                    </button>
+                </form>
+
+                {% if result %}
+                <div class="result-card {{ result.prediction.lower() }}">
+                    <div class="result-header">
+                        <div class="result-icon {{ result.prediction.lower() }}">
+                            {% if result.prediction == 'FAKE' %}⚠️{% else %}✅{% endif %}
+                        </div>
+                        <div>
+                            <div class="result-title">
+                                {% if result.prediction == 'FAKE' %}Likely Fake News{% else %}Likely Genuine News{% endif %}
+                            </div>
+                            <div style="color: var(--text-secondary); margin-top: 0.5rem;">
+                                Confidence: {{ "%.1f"|format(result.confidence * 100) }}%
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" style="width: {{ result.confidence * 100 }}%"></div>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value">{{ "%.1f"|format(result.fake_score * 100) }}%</div>
+                            <div class="stat-label">Fake Probability</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">{{ "%.1f"|format(result.real_score * 100) }}%</div>
+                            <div class="stat-label">Real Probability</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">{{ "%.1f"|format(result.confidence * 100) }}%</div>
+                            <div class="stat-label">Overall Confidence</div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- News Tab -->
+        <div id="news-tab" class="tab-content">
+            <div class="card">
+                <h2 style="margin-bottom: 1.5rem; font-size: 1.8rem;">📰 Latest News & Analysis</h2>
+                
+                <div class="news-controls">
+                    <div>
+                        <label class="form-label" for="newsCountry">Country</label>
+                        <select id="newsCountry" class="form-control">
+                            <option value="">All Countries</option>
+                            <option value="us">United States</option>
+                            <option value="gb">United Kingdom</option>
+                            <option value="ca">Canada</option>
+                            <option value="au">Australia</option>
+                            <option value="in">India</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label" for="newsSearch">Search News</label>
+                        <input type="text" id="newsSearch" class="form-control" placeholder="Search topics...">
+                    </div>
+                </div>
+
+                <div class="category-filters">
+                    <button class="category-btn active" data-category="" onclick="selectCategory('')">All</button>
+                    <button class="category-btn" data-category="business" onclick="selectCategory('business')">Business</button>
+                    <button class="category-btn" data-category="technology" onclick="selectCategory('technology')">Technology</button>
+                    <button class="category-btn" data-category="sports" onclick="selectCategory('sports')">Sports</button>
+                    <button class="category-btn" data-category="entertainment" onclick="selectCategory('entertainment')">Entertainment</button>
+                    <button class="category-btn" data-category="health" onclick="selectCategory('health')">Health</button>
+                    <button class="category-btn" data-category="science" onclick="selectCategory('science')">Science</button>
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                    <button class="btn btn-primary" onclick="fetchNewsArticles()">
+                        <span>🔄</span> Load News
+                    </button>
+                    <button class="btn btn-secondary" onclick="clearNews()">
+                        <span>🗑️</span> Clear
+                    </button>
+                </div>
+
+                <div class="loading" id="newsLoading">
+                    <div class="spinner"></div>
+                    <p>Loading latest news...</p>
+                </div>
+
+                <div id="newsContainer" class="news-container"></div>
+            </div>
+        </div>
+
+        <!-- About Tab -->
+        <div id="about-tab" class="tab-content">
+            <div class="card">
+                <h2 style="margin-bottom: 24px;">ℹ️ About This System</h2>
+                <div class="about-section">
+                    <p><strong>Welcome to the Fake News Detection System!</strong> This advanced machine learning-powered tool helps you identify potentially fake or misleading news articles.</p>
+                    
+                    <h3>🔍 How It Works</h3>
+                    <p>Our system uses sophisticated Natural Language Processing (NLP) techniques and machine learning algorithms to analyze news content and determine its authenticity.</p>
+                    
+                    <h3>💻 Technology Stack</h3>
+                    <ul>
+                        <li><strong>Machine Learning:</strong> Trained on thousands of real and fake news articles</li>
+                        <li><strong>Text Processing:</strong> Advanced NLP for feature extraction</li>
+                        <li><strong>TF-IDF Vectorization:</strong> Converts text into numerical features</li>
+                        <li><strong>Classification Algorithm:</strong> Optimized for news authenticity detection</li>
+                    </ul>
+                    
+                    <h3>✨ Features</h3>
+                    <ul>
+                        <li>Real-time news analysis</li>
+                        <li>Confidence scoring system</li>
+                        <li>Detailed fake/real probability breakdown</li>
+                        <li>Privacy-focused (all processing done locally)</li>
+                    </ul>
+                    
+                    <div style="background: rgba(102, 126, 234, 0.1); border: 1px solid rgba(102, 126, 234, 0.3); border-radius: 12px; padding: 1rem; margin: 1.5rem 0;">
+                        <strong>🔒 Privacy Notice:</strong> All news analysis is performed locally on your device. No data is transmitted to external servers.
+                    </div>
+                    
+                    <h3>🎯 Accuracy</h3>
+                    <p>Our model achieves high accuracy in distinguishing between fake and real news articles. However, no system is perfect, so always use critical thinking and verify information from multiple reliable sources.</p>
+                    
+                    <h3>💡 Usage Tips</h3>
+                    <ul>
+                        <li>Provide both title and content for better accuracy</li>
+                        <li>Use complete sentences and proper grammar</li>
+                        <li>Include relevant context and details</li>
+                        <li>Consider the confidence score in your decision</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Tab -->
+        <!-- Performance Tab -->
+        <div id="performance-tab" class="tab-content">
+            <div class="card">
+                <h2 style="margin-bottom: 24px;">📈 Detailed Performance Metrics</h2>
+                
+                <!-- Overall Statistics -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="perfAccuracyValue">--</div>
+                        <div class="stat-label">Overall Accuracy</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="perfSamplesValue">--</div>
+                        <div class="stat-label">Training Samples</div>
+                    </div>
+                </div>
+
+                <!-- Confusion Matrix -->
+                <h3 style="margin: 30px 0 20px; color: #667eea;">🎯 Confusion Matrix</h3>
+                <table class="confusion-table">
+                    <thead>
+                        <tr>
+                            <th>Actual \ Predicted</th>
+                            <th>Fake</th>
+                            <th>Real</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Fake</td>
+                            <td id="perfTrueNegative" class="correct-prediction">--</td>
+                            <td id="perfFalsePositive" class="incorrect-prediction">--</td>
+                        </tr>
+                        <tr>
+                            <td>Real</td>
+                            <td id="perfFalseNegative" class="incorrect-prediction">--</td>
+                            <td id="perfTruePositive" class="correct-prediction">--</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- Classification Report -->
+                <h3 style="margin: 30px 0 20px; color: #667eea;">📋 Classification Report</h3>
+                <table class="performance-table">
+                    <thead>
+                        <tr>
+                            <th>Class</th>
+                            <th>Precision</th>
+                            <th>Recall</th>
+                            <th>F1-Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Fake News</strong></td>
+                            <td id="perfFakePrecision">--</td>
+                            <td id="perfFakeRecall">--</td>
+                            <td id="perfFakeF1">--</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Real News</strong></td>
+                            <td id="perfRealPrecision">--</td>
+                            <td id="perfRealRecall">--</td>
+                            <td id="perfRealF1">--</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Macro Avg</strong></td>
+                            <td id="perfMacroPrecision">--</td>
+                            <td id="perfMacroRecall">--</td>
+                            <td id="perfMacroF1">--</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Weighted Avg</strong></td>
+                            <td id="perfWeightedPrecision">--</td>
+                            <td id="perfWeightedRecall">--</td>
+                            <td id="perfWeightedF1">--</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all nav tabs
+            document.querySelectorAll('.nav-tab').forEach(navTab => {
+                navTab.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + '-tab').classList.add('active');
+            
+            // Add active class to clicked nav tab
+            event.target.classList.add('active');
+            
+            // Load status data when switching to status tab
+            // Load performance data when switching to performance tab
+            if (tabName === 'performance') {
+                loadPerformance();
+            }
+        }
+
+        // News functions
+        async function fetchNewsArticles() {
+            const loading = document.getElementById('newsLoading');
+            const container = document.getElementById('newsContainer');
+            const country = document.getElementById('newsCountry').value;
+            const searchQuery = document.getElementById('newsSearch').value.trim();
+            const activeCategory = document.querySelector('.category-btn.active').dataset.category;
+            
+            loading.style.display = 'block';
+            container.innerHTML = '';
+            
+            try {
+                const params = new URLSearchParams({
+                    pageSize: '10'
+                });
+
+                if (activeCategory) params.append('category', activeCategory);
+                if (country) params.append('country', country);
+                if (searchQuery) params.append('query', searchQuery);
+
+                const response = await fetch(`/api/news?${params.toString()}`);
+                const data = await response.json();
+
+                loading.style.display = 'none';
+
+                if (!data.success) {
+                    container.innerHTML = `
+                        <div class="news-error">
+                            <strong>Error:</strong> ${data.error}
+                        </div>
+                    `;
+                    return;
+                }
+
+                if (data.articles.length === 0) {
+                    container.innerHTML = '<div class="no-news">No news articles found. Try different filters or search terms.</div>';
+                    return;
+                }
+
+                displayNewsArticles(data.articles);
+
+            } catch (error) {
+                loading.style.display = 'none';
+                container.innerHTML = `
+                    <div class="news-error">
+                        <strong>Network Error:</strong> Failed to fetch news. Please check your internet connection.
+                    </div>
+                `;
+            }
+        }
+
+        // Search function
+        async function searchNews() {
+            const searchQuery = document.getElementById('newsSearch').value.trim();
+            if (!searchQuery) {
+                document.getElementById('newsContainer').innerHTML = '<div class="no-news">Please enter a search term.</div>';
+                return;
+            }
+            
+            // Reset category to "All" when searching
+            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector('.category-btn[data-category=""]').classList.add('active');
+            
+            await fetchNewsArticles();
+        }
+
+        // Category button click handler
+        function selectCategory(category) {
+            // Remove active class from all buttons
+            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+            
+            // Add active class to clicked button
+            document.querySelector(`.category-btn[data-category="${category}"]`).classList.add('active');
+            
+            // Clear search when selecting category
+            document.getElementById('newsSearch').value = '';
+            
+            // Fetch news with selected category
+            fetchNewsArticles();
+        }
+
+        function displayNewsArticles(articles) {
+            const container = document.getElementById('newsContainer');
+            
+            container.innerHTML = articles.map((article, index) => `
+                <div class="news-article" id="article-${index}">
+                    <div class="news-meta">
+                        <span class="news-source">${article.source}</span>
+                        <span>${new Date(article.publishedAt).toLocaleDateString()}</span>
+                    </div>
+                    <h3>${article.title}</h3>
+                    <div class="news-description">
+                        ${article.description || article.content || 'No description available.'}
+                    </div>
+                    <div class="news-actions">
+                        <button class="btn-analyze" onclick="analyzeNewsArticle(${index})">
+                            🔍 Analyze
+                        </button>
+                        <a href="${article.url}" target="_blank" style="color: #667eea; text-decoration: none; font-size: 0.9em;">
+                            📖 Read Full Article →
+                        </a>
+                    </div>
+                    <div id="analysis-${index}"></div>
+                </div>
+            `).join('');
+        }
+
+        async function analyzeNewsArticle(index) {
+            const analysisDiv = document.getElementById(`analysis-${index}`);
+            const button = document.querySelector(`#article-${index} .btn-analyze`);
+            
+            button.disabled = true;
+            button.textContent = '🔄 Analyzing...';
+
+            try {
+                // Get article data from the DOM
+                const articleDiv = document.getElementById(`article-${index}`);
+                const title = articleDiv.querySelector('h3').textContent;
+                const description = articleDiv.querySelector('.news-description').textContent;
+
+                const response = await fetch('/api/analyze-news', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        title: title,
+                        content: description
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    analysisDiv.innerHTML = `
+                        <div class="news-analysis-result fake">
+                            <strong>Analysis Error:</strong> ${data.error}
+                        </div>
+                    `;
+                } else {
+                    const resultClass = data.prediction === 'FAKE' ? 'fake' : 'real';
+                    const icon = data.prediction === 'FAKE' ? '⚠️' : '✅';
+                    const message = data.prediction === 'FAKE' ? 'LIKELY FAKE NEWS' : 'LIKELY GENUINE NEWS';
+                    
+                    analysisDiv.innerHTML = `
+                        <div class="news-analysis-result ${resultClass}">
+                            <div style="font-size: 1.2em; margin-bottom: 8px;">
+                                ${icon} <strong>${message}</strong>
+                            </div>
+                            <div style="font-size: 0.9em; opacity: 0.9;">
+                                Confidence: ${(data.confidence * 100).toFixed(1)}% | 
+                                Fake: ${(data.fake_score * 100).toFixed(1)}% | 
+                                Real: ${(data.real_score * 100).toFixed(1)}%
+                            </div>
+                        </div>
+                    `;
+                }
+
+            } catch (error) {
+                analysisDiv.innerHTML = `
+                    <div class="news-analysis-result fake">
+                        <strong>Network Error:</strong> Failed to analyze article. Please try again.
+                    </div>
+                `;
+            } finally {
+                button.disabled = false;
+                button.textContent = '🔍 Analyze';
+            }
+        }
+
+        function clearNews() {
+            document.getElementById('newsContainer').innerHTML = '';
+            document.getElementById('newsCountry').value = '';
+            document.getElementById('newsSearch').value = '';
+            
+            // Reset category to "All"
+            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector('.category-btn[data-category=""]').classList.add('active');
+        }
+
+        // Status functions
+        // Load detailed performance metrics
+        async function loadPerformance() {
+            try {
+                console.log('Loading performance data...');
+                const response = await fetch('/api/performance');
+                const data = await response.json();
+                console.log('Performance API response:', data);
+                
+                if (data.success && data) {
+                    console.log('Processing performance data...');
+                    
+                    // Update overall statistics
+                    if (data.model_accuracy !== undefined) {
+                        const accuracyEl = document.getElementById('perfAccuracyValue');
+                        accuracyEl.textContent = `${(data.model_accuracy * 100).toFixed(1)}%`;
+                        console.log('Updated accuracy:', data.model_accuracy);
+                    }
+                    
+                    // Update training samples (calculate from test data)
+                    if (data.confusion_matrix) {
+                        const totalTest = data.confusion_matrix.true_negatives + data.confusion_matrix.false_positives + 
+                                        data.confusion_matrix.false_negatives + data.confusion_matrix.true_positives;
+                        const trainingSamples = totalTest * 4; // Assuming 4:1 train:test split
+                        document.getElementById('perfSamplesValue').textContent = trainingSamples.toLocaleString();
+                        console.log('Updated training samples:', trainingSamples);
+                    }
+
+                    // Update performance metrics table
+                    if (data.classification_report) {
+                        console.log('Classification report data:', data.classification_report);
+                        const report = data.classification_report;
+                        
+                        // Update Fake metrics
+                        if (report.fake) {
+                            console.log('Updating fake metrics:', report.fake);
+                            document.getElementById('perfFakePrecision').textContent = (report.fake.precision * 100).toFixed(1) + '%';
+                            document.getElementById('perfFakeRecall').textContent = (report.fake.recall * 100).toFixed(1) + '%';
+                            document.getElementById('perfFakeF1').textContent = (report.fake.f1_score * 100).toFixed(1) + '%';
+                        } else {
+                            console.log('Fake metrics not found in report');
+                        }
+                        
+                        // Update Real metrics
+                        if (report.real) {
+                            console.log('Updating real metrics:', report.real);
+                            document.getElementById('perfRealPrecision').textContent = (report.real.precision * 100).toFixed(1) + '%';
+                            document.getElementById('perfRealRecall').textContent = (report.real.recall * 100).toFixed(1) + '%';
+                            document.getElementById('perfRealF1').textContent = (report.real.f1_score * 100).toFixed(1) + '%';
+                        } else {
+                            console.log('Real metrics not found in report');
+                        }
+                        
+                        // Update averages
+                        if (report.macro_avg) {
+                            console.log('Updating macro avg:', report.macro_avg);
+                            document.getElementById('perfMacroPrecision').textContent = (report.macro_avg.precision * 100).toFixed(1) + '%';
+                            document.getElementById('perfMacroRecall').textContent = (report.macro_avg.recall * 100).toFixed(1) + '%';
+                            document.getElementById('perfMacroF1').textContent = (report.macro_avg.f1_score * 100).toFixed(1) + '%';
+                        } else {
+                            console.log('Macro avg not found in report');
+                        }
+                        
+                        if (report.weighted_avg) {
+                            console.log('Updating weighted avg:', report.weighted_avg);
+                            document.getElementById('perfWeightedPrecision').textContent = (report.weighted_avg.precision * 100).toFixed(1) + '%';
+                            document.getElementById('perfWeightedRecall').textContent = (report.weighted_avg.recall * 100).toFixed(1) + '%';
+                            document.getElementById('perfWeightedF1').textContent = (report.weighted_avg.f1_score * 100).toFixed(1) + '%';
+                        } else {
+                            console.log('Weighted avg not found in report');
+                        }
+                    } else {
+                        console.log('No classification_report data found');
+                    }
+
+                    // Update confusion matrix
+                    if (data.confusion_matrix) {
+                        const cm = data.confusion_matrix;
+                        
+                        // True Negative (correctly identified as fake)
+                        const tnEl = document.getElementById('perfTrueNegative');
+                        tnEl.textContent = cm.true_negatives || data.tn || '--';
+                        
+                        // False Positive (incorrectly identified as real)
+                        const fpEl = document.getElementById('perfFalsePositive');
+                        fpEl.textContent = cm.false_positives || data.fp || '--';
+                        
+                        // False Negative (incorrectly identified as fake)
+                        const fnEl = document.getElementById('perfFalseNegative');
+                        fnEl.textContent = cm.false_negatives || data.fn || '--';
+                        
+                        // True Positive (correctly identified as real)
+                        const tpEl = document.getElementById('perfTruePositive');
+                        tpEl.textContent = cm.true_positives || data.tp || '--';
+                    } else if (data.tn !== undefined) {
+                        // Fallback to flat structure
+                        const tnEl = document.getElementById('perfTrueNegative');
+                        tnEl.textContent = data.tn;
+                        
+                        const fpEl = document.getElementById('perfFalsePositive');
+                        fpEl.textContent = data.fp;
+                        
+                        const fnEl = document.getElementById('perfFalseNegative');
+                        fnEl.textContent = data.fn;
+                        
+                        const tpEl = document.getElementById('perfTruePositive');
+                        tpEl.textContent = data.tp;
+                    }
+                } else {
+                    console.error('API response indicates failure:', data);
+                    throw new Error(data.error || 'Failed to load performance data');
+                }
+            } catch (error) {
+                console.error('Error loading performance:', error);
+                
+                // Set default values when data is not available
+                document.getElementById('perfAccuracyValue').textContent = 'Error';
+                document.getElementById('perfSamplesValue').textContent = 'Error';
+                
+                // Reset all metrics to default
+                const metricIds = [
+                    'perfFakePrecision', 'perfFakeRecall', 'perfFakeF1',
+                    'perfRealPrecision', 'perfRealRecall', 'perfRealF1',
+                    'perfMacroPrecision', 'perfMacroRecall', 'perfMacroF1',
+                    'perfWeightedPrecision', 'perfWeightedRecall', 'perfWeightedF1',
+                    'perfTrueNegative', 'perfFalsePositive', 'perfFalseNegative', 'perfTruePositive'
+                ];
+                
+                metricIds.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = '--';
+                });
+            }
+        }
+
+        // Add event listeners for category buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            // Category button click handlers
+            document.querySelectorAll('.category-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    selectCategory(this.dataset.category);
+                });
+            });
+
+            // Search on Enter key
+            document.getElementById('newsSearch').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchNews();
+                }
+            });
+
+            // Load initial performance data when page loads
+            loadPerformance();
+        });
+
+        // Add smooth scroll behavior for better UX
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Add parallax effect to floating shapes
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const shapes = document.querySelectorAll('.shape');
+            
+            shapes.forEach((shape, index) => {
+                const speed = 0.5 + (index * 0.1);
+                shape.style.transform = `translateY(${scrolled * speed}px)`;
+            });
+        });
+    </script>
+</body>
+</html>
