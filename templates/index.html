@@ -945,9 +945,14 @@
                                   placeholder="Paste the full news article content here...">{{ request.form.content or '' }}</textarea>
                     </div>
 
-                    <button type="submit" class="btn btn-primary">
-                        <span>🔍</span> Analyze for Authenticity
-                    </button>
+                    <div style="display: flex; gap: 10px; margin-top: 20px;">
+                        <button type="submit" class="btn btn-primary" style="flex: 1;">
+                            <span>🔍</span> Analyze for Authenticity
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="clearForm()" style="background: #4a5568;">
+                            <span>🗑️</span> Clear
+                        </button>
+                    </div>
                 </form>
 
                 {% if result %}
@@ -1301,6 +1306,11 @@
             `).join('');
         }
 
+        function cleanText(text) {
+            // Remove extra whitespace and trim
+            return text.replace(/\s+/g, ' ').trim();
+        }
+
         async function analyzeNewsArticle(index) {
             const analysisDiv = document.getElementById(`analysis-${index}`);
             const button = document.querySelector(`#article-${index} .btn-analyze`);
@@ -1309,10 +1319,10 @@
             button.textContent = '🔄 Analyzing...';
 
             try {
-                // Get article data from the DOM
+                // Get article data from the DOM and clean it
                 const articleDiv = document.getElementById(`article-${index}`);
-                const title = articleDiv.querySelector('h3').textContent;
-                const description = articleDiv.querySelector('.news-description').textContent;
+                const title = cleanText(articleDiv.querySelector('h3').textContent);
+                const description = cleanText(articleDiv.querySelector('.news-description').textContent);
 
                 const response = await fetch('/api/analyze-news', {
                     method: 'POST',
@@ -1362,6 +1372,13 @@
                 button.disabled = false;
                 button.textContent = '🔍 Analyze';
             }
+        }
+
+        function clearForm() {
+            document.getElementById('title').value = '';
+            document.getElementById('content').value = '';
+            const resultCard = document.querySelector('.result-card');
+            if (resultCard) resultCard.remove();
         }
 
         function clearNews() {
